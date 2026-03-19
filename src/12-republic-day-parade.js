@@ -112,8 +112,106 @@
  */
 export function createContingent(name, type, state, members) {
   // Your code here
+  if(typeof name !== "string" || typeof type !== "string" || typeof state !== "string" || !Array.isArray(members)) return null
+
+  const contingent = document.createElement("div")
+  contingent.className = "contingent"
+
+  contingent.dataset.name = name
+  contingent.dataset.type = type
+  contingent.dataset.state = state
+
+  const h3 = document.createElement("h3")
+  h3.textContent = name
+
+  const spanType = document.createElement("span");
+  spanType.className = "type";
+  spanType.textContent = type
+
+  const spanState = document.createElement("span");
+  spanState.className = "state";
+  spanState.textContent = state;
+
+  const ul = document.createElement("ul");
+  members.forEach(member => {
+    const li = document.createElement("li");
+    li.textContent = member;
+    ul.appendChild(li);
+  });
+
+  contingent.append(h3, spanType, spanState, ul);
+  return contingent;
 }
 
 export function setupParadeDashboard(container) {
   // Your code here
+  if (!container) return null;
+
+  return {
+    addContingent(data) {
+      const el = createContingent(data.name, data.type, data.state, data.members);
+      if (el) {
+        container.appendChild(el);
+        return el;
+      }
+      return null;
+    },
+
+    removeContingent(name) {
+      const el = container.querySelector(`.contingent[data-name="${name}"]`);
+      if (el) {
+        container.removeChild(el);
+        return true;
+      }
+      return false;
+    },
+
+    moveContingent(name, direction) {
+      const el = container.querySelector(`.contingent[data-name="${name}"]`);
+      if (!el) return false;
+
+      if (direction === "up") {
+        const prev = el.previousElementSibling;
+        if (prev) {
+          container.insertBefore(el, prev);
+          return true;
+        }
+      } else if (direction === "down") {
+        const next = el.nextElementSibling;
+        if (next) {
+          // To move down, we put the NEXT element BEFORE our current element
+          container.insertBefore(next, el);
+          return true;
+        }
+      }
+      return false;
+    },
+
+    getContingentsByType(type) {
+      return Array.from(container.querySelectorAll(`.contingent[data-type="${type}"]`));
+    },
+
+    highlightState(state) {
+      const contingents = container.querySelectorAll(".contingent");
+      let count = 0;
+      contingents.forEach(c => {
+        if (c.dataset.state === state) {
+          c.classList.add("highlight");
+          count++;
+        } else {
+          c.classList.remove("highlight");
+        }
+      });
+      return count;
+    },
+
+    getParadeOrder() {
+      const contingents = Array.from(container.querySelectorAll(".contingent"));
+      return contingents.map(c => c.dataset.name);
+    },
+
+    getTotalMembers() {
+      return container.querySelectorAll("li").length;
+    }
+  };
 }

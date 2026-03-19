@@ -88,28 +88,59 @@
  */
 export function findQueueContainer(element) {
   // Your code here
+  if(!element || typeof element === "undefined") return null
+  return element.closest(".queue-container")
 }
 
 export function getNextInQueue(element) {
   // Your code here
+  if(!element) return null
+
+  return element.nextElementSibling
 }
 
 export function getPreviousInQueue(element) {
   // Your code here
+  if(!element) return null
+  return element.previousElementSibling
 }
 
 export function getQueuePosition(element) {
   // Your code here
+  if(!element || !element.parentNode) return -1
+
+  const siblings = Array.from(element.parentNode.children);
+  const index = siblings.indexOf(element);
+
+  return index !== -1 ? index + 1 : -1
 }
 
 export function moveToFront(element) {
   // Your code here
+  if(!element || !element.parentNode) return false;
+
+  const parent = element.parentNode
+  if(element === parent.firstElementChild) return false;
+
+  parent.insertBefore(element, parent.firstChild);
+  return true;
 }
 
 export function removeFromQueue(element) {
   // Your code here
+  if (!element || !element.parentNode) return null;
+  
+  const parent = element.parentNode;
+  return parent.removeChild(element);
 }
 
 export function getQueueStats(queueContainer) {
   // Your code here
+  if (!queueContainer) return null;
+  return {
+    total: queueContainer.children.length,
+    waiting: queueContainer.querySelectorAll(".waiting").length,
+    serving: queueContainer.querySelectorAll(".serving").length,
+    completed: queueContainer.querySelectorAll(".completed").length
+  };
 }
